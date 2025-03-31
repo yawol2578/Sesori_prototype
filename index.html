@@ -7,26 +7,323 @@
     <style>
         body {
             font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .container {
             text-align: center;
-            margin: 50px;
         }
         #menu {
-            white-space: pre-line; /* 개행 문자 적용 */
+            white-space: pre-line;
             font-size: 18px;
             margin-top: 20px;
+            text-align: left;
+        }
+        .auth-section {
+            margin: 20px 0;
+        }
+        .form-group {
+            margin: 10px 0;
+        }
+        .review-section {
+            margin-top: 30px;
+            text-align: left;
+        }
+        .review-form {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .review-list {
+            margin-top: 20px;
+        }
+        .review-item {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        .hidden {
+            display: none;
+        }
+        button {
+            padding: 8px 16px;
+            margin: 5px;
+            cursor: pointer;
+        }
+        input, textarea {
+            padding: 8px;
+            margin: 5px;
+            width: 200px;
         }
     </style>
 </head>
 <body>
+    <div class="container">
+        <h1>오늘의 급식</h1>
+        <h2 id="date"></h2>
+        <pre id="menu"></pre>
 
-    <h1>오늘의 급식</h1>
-    <h2 id="date"></h2>
-    <pre id="menu"></pre>
+        <!-- 인증 섹션 -->
+        <div class="auth-section">
+            <div id="authStatus">
+                <button onclick="showLoginForm()">로그인</button>
+                <button onclick="showRegisterForm()">회원가입</button>
+            </div>
+
+            <!-- 로그인 폼 -->
+            <div id="loginForm" class="hidden">
+                <h3>로그인</h3>
+                <div class="form-group">
+                    <input type="text" id="loginUsername" placeholder="아이디">
+                </div>
+                <div class="form-group">
+                    <input type="password" id="loginPassword" placeholder="비밀번호">
+                </div>
+                <button onclick="login()">로그인</button>
+                <button onclick="showRegisterForm()">회원가입으로 전환</button>
+            </div>
+
+            <!-- 회원가입 폼 -->
+            <div id="registerForm" class="hidden">
+                <h3>회원가입</h3>
+                <div class="form-group">
+                    <input type="text" id="registerUsername" placeholder="아이디">
+                </div>
+                <div class="form-group">
+                    <input type="password" id="registerPassword" placeholder="비밀번호">
+                </div>
+                <button onclick="register()">회원가입</button>
+                <button onclick="showLoginForm()">로그인으로 전환</button>
+            </div>
+
+            <!-- 사용자 정보 -->
+            <div id="userInfo" class="hidden">
+                <p>환영합니다, <span id="username"></span>님!</p>
+                <button onclick="logout()">로그아웃</button>
+            </div>
+        </div>
+
+        <!-- 리뷰 섹션 -->
+        <div id="reviewSection" class="review-section hidden">
+            <h3>급식 리뷰</h3>
+            <div class="review-form">
+                <div class="form-group">
+                    <label>평점:</label>
+                    <select id="rating">
+                        <option value="5">5점</option>
+                        <option value="4">4점</option>
+                        <option value="3">3점</option>
+                        <option value="2">2점</option>
+                        <option value="1">1점</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <textarea id="comment" placeholder="리뷰 내용을 입력하세요" rows="3"></textarea>
+                </div>
+                <button onclick="submitReview()">리뷰 작성</button>
+            </div>
+            <div id="reviewList" class="review-list"></div>
+        </div>
+    </div>
 
     <script>
+        const API_URL = 'http://localhost:3000';
+        let user = null;
+
+        // 로그인 상태 확인
+        function checkLoginStatus() {
+            const token = localStorage.getItem('token');
+            if (token) {
+                fetch(`${API_URL}/profile`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.id) {
+                        user = data;
+                        document.getElementById('loginForm').style.display = 'none';
+                        document.getElementById('registerForm').style.display = 'none';
+                        document.getElementById('authStatus').style.display = 'none';
+                        document.getElementById('userInfo').style.display = 'block';
+                        document.getElementById('username').textContent = user.username;
+                        document.getElementById('reviewSection').classList.remove('hidden');
+                        fetchReviews();
+                    } else {
+                        localStorage.removeItem('token');
+                        showLoginButtons();
+                    }
+                })
+                .catch(error => {
+                    console.error('프로필 조회 실패:', error);
+                    localStorage.removeItem('token');
+                    showLoginButtons();
+                });
+            } else {
+                showLoginButtons();
+                fetchReviews();
+            }
+        }
+
+        // 로그아웃
+        function logout() {
+            localStorage.removeItem('token');
+            user = null;
+            document.getElementById('userInfo').style.display = 'none';
+            document.getElementById('authStatus').style.display = 'block';
+            document.getElementById('reviewSection').classList.add('hidden');
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('registerForm').style.display = 'none';
+            fetchReviews();
+        }
+
+        function showLoginButtons() {
+            document.getElementById('authStatus').style.display = 'block';
+            document.getElementById('userInfo').style.display = 'none';
+            document.getElementById('reviewSection').classList.add('hidden');
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('registerForm').style.display = 'none';
+        }
+
+        function showLoginForm() {
+            document.getElementById('loginForm').style.display = 'block';
+            document.getElementById('registerForm').style.display = 'none';
+        }
+
+        function showRegisterForm() {
+            document.getElementById('registerForm').style.display = 'block';
+            document.getElementById('loginForm').style.display = 'none';
+        }
+
+        // 로그인
+        function login() {
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+
+            fetch(`${API_URL}/login`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username, password })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                localStorage.setItem('token', data.token);
+                user = data.user;
+                document.getElementById('loginForm').style.display = 'none';
+                document.getElementById('registerForm').style.display = 'none';
+                document.getElementById('authStatus').style.display = 'none';
+                document.getElementById('userInfo').style.display = 'block';
+                document.getElementById('username').textContent = user.username;
+                document.getElementById('reviewSection').classList.remove('hidden');
+                fetchReviews();
+            })
+            .catch(error => {
+                console.error('로그인 실패:', error);
+                alert(error.message || '로그인에 실패했습니다.');
+            });
+        }
+
+        // 회원가입
+        function register() {
+            const username = document.getElementById('registerUsername').value.trim();
+            const password = document.getElementById('registerPassword').value.trim();
+
+            if (!username || !password) {
+                alert('아이디와 비밀번호를 입력하세요.');
+                return;
+            }
+
+            fetch(`${API_URL}/register`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username, password })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message) {
+                    alert('회원가입 성공!');
+                    showLoginForm();
+                    clearRegisterForm();
+                } else {
+                    alert('회원가입 실패');
+                }
+            })
+            .catch(error => {
+                alert('회원가입 실패: ' + error.message);
+            });
+        }
+
+        function clearRegisterForm() {
+            document.getElementById('registerUsername').value = '';
+            document.getElementById('registerPassword').value = '';
+        }
+
+        // 리뷰 작성
+        function submitReview() {
+            const rating = document.getElementById('rating').value;
+            const comment = document.getElementById('comment').value;
+            const date = document.getElementById('date').textContent.split(': ')[1];
+
+            fetch(`${API_URL}/reviews`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                },
+                body: JSON.stringify({ date, rating, comment })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message) {
+                    alert('리뷰가 작성되었습니다.');
+                    document.getElementById('comment').value = '';
+                    fetchReviews();
+                } else {
+                    alert('리뷰 작성 실패');
+                }
+            })
+            .catch(error => {
+                alert('리뷰 작성 실패: ' + error.message);
+            });
+        }
+
+        // 리뷰 목록 조회
+        function fetchReviews() {
+            const date = document.getElementById('date').textContent.split(': ')[1];
+            fetch(`${API_URL}/reviews/${date}`)
+                .then(response => response.json())
+                .then(reviews => {
+                    const reviewList = document.getElementById('reviewList');
+                    reviewList.innerHTML = '';
+                    reviews.forEach(review => {
+                        const reviewElement = document.createElement('div');
+                        reviewElement.className = 'review-item';
+                        reviewElement.innerHTML = `
+                            <strong>${review.username}</strong> (${review.rating}점)
+                            <p>${review.comment || ''}</p>
+                            <small>${new Date(review.created_at).toLocaleString()}</small>
+                        `;
+                        reviewList.appendChild(reviewElement);
+                    });
+                })
+                .catch(error => {
+                    console.error('리뷰 조회 실패:', error);
+                });
+        }
+
+        // 급식 정보 조회
         async function getMealData() {
             try {
-                const response = await fetch("http://localhost:3000/api"); // 백엔드 API 호출
+                const response = await fetch(`${API_URL}/api`);
                 const data = await response.json();
 
                 if (data.error) {
@@ -34,6 +331,7 @@
                 } else {
                     document.getElementById("date").textContent = `📅 날짜: ${data.date}`;
                     document.getElementById("menu").textContent = data.menu;
+                    fetchReviews();
                 }
             } catch (error) {
                 console.error("급식 정보를 가져오는 중 오류 발생:", error);
@@ -41,8 +339,9 @@
             }
         }
 
-        getMealData(); // 페이지 로드 시 실행
+        // 페이지 로드 시 실행
+        getMealData();
+        checkLoginStatus();
     </script>
-
 </body>
 </html>
