@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>급식 정보</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 50px;
+        }
+        #menu {
+            white-space: pre-line; /* 개행 문자 적용 */
+            font-size: 18px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>오늘의 급식</h1>
+    <h2 id="date"></h2>
+    <pre id="menu"></pre>
+
+    <script>
+        async function getMealData() {
+            try {
+                const response = await fetch("http://localhost:3000/api"); // 백엔드 API 호출
+                const data = await response.json();
+
+                if (data.error) {
+                    document.getElementById("menu").textContent = "급식 정보가 없습니다.";
+                } else {
+                    document.getElementById("date").textContent = `📅 날짜: ${data.date}`;
+                    document.getElementById("menu").textContent = data.menu;
+                }
+            } catch (error) {
+                console.error("급식 정보를 가져오는 중 오류 발생:", error);
+                document.getElementById("menu").textContent = "급식 정보를 불러오지 못했습니다.";
+            }
+        }
+
+        getMealData(); // 페이지 로드 시 실행
+    </script>
+
+</body>
+</html>
