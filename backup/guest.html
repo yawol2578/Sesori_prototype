@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>급식 리뷰 - 게스트</title>
+    <style>
+        body {
+          font-family: Arial, sans-serif;
+          margin: 0;
+          padding: 0;
+          background-color: #f5f5f5;
+        }
+        .header {
+          background-color: #4CAF50;
+          color: white;
+          padding: 20px 0;
+          text-align: center;
+        }
+        .container {
+          max-width: 1200px;
+          margin: 0 auto;
+          padding: 20px;
+          position: relative;
+        }
+        .meal-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+          gap: 20px;
+          margin: 100px 0 20px 0;
+        }
+        .meal-card {
+          background-color: white;
+          padding: 20px;
+          border-radius: 10px;
+          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .meal-date {
+          font-size: 1.2em;
+          font-weight: bold;
+          margin-bottom: 10px;
+          color: #333;
+          text-align: center;
+        }
+        .menu-content {
+          white-space: pre-line;
+          line-height: 1.6;
+          margin-bottom: 15px;
+          font-size: 0.95em;
+        }
+        .review-section {
+          margin-top: 15px;
+          border-top: 1px solid #eee;
+          padding-top: 15px;
+        }
+        .review-list {
+          max-height: 200px;
+          overflow-y: auto;
+          margin-bottom: 10px;
+        }
+        .review-item {
+          border-bottom: 1px solid #eee;
+          padding: 8px 0;
+          font-size: 0.9em;
+        }
+        .review-item:last-child {
+          border-bottom: none;
+        }
+        .rating {
+          color: #FFD700;
+          font-size: 1em;
+        }
+        .user-info {
+          color: #666;
+          font-size: 0.8em;
+        }
+        .logout-btn {
+          background-color: #f44336;
+          color: white;
+          position: fixed;
+          bottom: 20px;
+          right: 20px;
+          z-index: 100;
+          padding: 10px 18px;
+          border: none;
+          border-radius: 5px;
+          cursor: pointer;
+          font-size: 14px;
+          transition: background-color 0.3s;
+        }
+        .logout-btn:hover {
+          background-color: #da190b;
+        }
+        .arrow {
+          position: absolute;
+          top: 100px;
+          transform: translateY(-50%);
+          font-size: 48px;
+          cursor: pointer;
+          color: #ccc;
+          z-index: 10;
+          user-select: none;
+          transition: color 0.2s;
+        }
+        .arrow:hover {
+          color: #444;
+        }
+        .arrow.left {
+          left: -30px;
+        }
+        .arrow.right {
+          right: -30px;
+        }
+        .meal-wrapper {
+          position: relative;
+        }
+        @media (max-width: 768px) {
+          .header h1 {
+            font-size: 1.4em;
+          }
+          .header p {
+            font-size: 0.95em;
+          }
+          .arrow {
+            font-size: 36px;
+            top: 80px;
+          }
+          .container {
+            padding: 10px;
+          }
+          .meal-card {
+            padding: 15px;
+          }
+          .menu-content {
+            font-size: 0.9em;
+          }
+          .logout-btn {
+            padding: 8px 14px;
+            font-size: 13px;
+            right: 10px;
+            bottom: 10px;
+          }
+        }
+      </style>
+    </head>
+    <body>
+      <div class="header">
+        <h1>급식 리뷰 서비스</h1>
+        <p>리뷰를 남기고 싶다면 로그인하세요!</p>
+      </div>
+      <div class="container">
+        <div class="arrow left" onclick="moveDay(-1)">&#10094;</div>
+        <div class="arrow right" onclick="moveDay(1)">&#10095;</div>
+        <div class="meal-wrapper">
+          <div class="meal-grid">
+            <div class="meal-card">
+              <div class="meal-date">어제</div>
+              <div id="yesterdayMeal" class="menu-content">로딩 중...</div>
+              <div class="review-section">
+                <div id="yesterdayReviews" class="review-list">로딩 중...</div>
+              </div>
+            </div>
+            <div class="meal-card">
+              <div class="meal-date">오늘</div>
+              <div id="todayMeal" class="menu-content">로딩 중...</div>
+              <div class="review-section">
+                <div id="todayReviews" class="review-list">로딩 중...</div>
+              </div>
+            </div>
+            <div class="meal-card">
+              <div class="meal-date">내일</div>
+              <div id="tomorrowMeal" class="menu-content">로딩 중...</div>
+              <div class="review-section">
+                <div id="tomorrowReviews" class="review-list">로딩 중...</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <button class="logout-btn" onclick="logout()">로그인 하러 가기</button>
+
+    <script>
+        const API_URL = 'http://null4u.net:3000';
+        const WS_URL = 'ws://null4u.net:3001';
+        let user = null;
+    
+        function getDate(offset = 0) {
+            const date = new Date();
+            date.setDate(date.getDate() + offset);
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, "0");
+            const day = String(date.getDate()).padStart(2, "0");
+            return `${year}${month}${day}`;
+        }
+    
+        function updateMealLabels(offset) {
+            const labels = document.querySelectorAll('.meal-date');
+            const baseOffsets = [-1, 0, 1];
+            labels.forEach((el, i) => {
+                const actualOffset = offset + baseOffsets[i];
+                let label = '';
+                if (actualOffset === 0) label = '오늘';
+                else if (actualOffset === -1) label = '어제';
+                else if (actualOffset === 1) label = '내일';
+                else if (actualOffset < 0) label = `${Math.abs(actualOffset)}일 전`;
+                else label = `${actualOffset}일 후`;
+                const date = new Date();
+                date.setDate(date.getDate() + actualOffset);
+                const formatted = `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, '0')}.${String(date.getDate()).padStart(2, '0')}`;
+                el.innerHTML = `${label}<br><span style="font-size: 0.9em; color: #666;">${formatted}</span>`;
+            });
+        }
+    
+        function loadMealInfo(date, elementId) {
+            fetch(`${API_URL}/api?date=${date}`)
+                .then(response => response.json())
+                .then(data => {
+                    const mealContent = document.getElementById(elementId);
+                    if (data.error) {
+                        mealContent.innerHTML = `<div class="error-message">${data.error}</div>`;
+                    } else {
+                        mealContent.innerHTML = `
+                            <div>${data.menu}</div>
+                            ${data.CAL_INFO ? `<div style="margin-top: 8px; font-size: 0.9em; color: #555;">칼로리: ${data.CAL_INFO}</div>` : ''}
+                        `;
+                    }
+                })
+                .catch(error => {
+                    console.error('급식 정보 로드 실패:', error);
+                    document.getElementById(elementId).innerHTML =
+                        '<div class="error-message">급식 정보를 불러오는데 실패했습니다.</div>';
+                });
+        }
+    
+        function renderReview(review, container) {
+            if (typeof container === 'string') {
+                container = document.getElementById(container);
+            }
+    
+            const div = document.createElement('div');
+            div.className = 'review-item';
+            div.setAttribute('data-review-id', review.id);
+    
+            const koreanTime = new Date(review.created_at);
+            koreanTime.setHours(koreanTime.getHours() + 9);
+            const formattedTime = koreanTime.toLocaleString('ko-KR', {
+                year: 'numeric', month: '2-digit', day: '2-digit',
+                hour: '2-digit', minute: '2-digit', hour12: false
+            });
+    
+            div.innerHTML = `
+                <div class="user-info">${review.username} • ${formattedTime}</div>
+                <div class="rating">${'★'.repeat(review.rating)}${'☆'.repeat(5 - review.rating)}</div>
+                <div>${review.comment || ''}</div>
+            `;
+    
+            container.appendChild(div);
+        }
+    
+        function loadReviews(date, elementId) {
+            fetch(`${API_URL}/reviews/${date}`)
+                .then(response => response.json())
+                .then(reviews => {
+                    const reviewList = document.getElementById(elementId);
+                    reviewList.innerHTML = '';
+                    if (reviews.length === 0) {
+                        reviewList.innerHTML = '<p>아직 작성된 리뷰가 없습니다.</p>';
+                        return;
+                    }
+                    reviews.forEach(review => renderReview(review, reviewList));
+                })
+                .catch(error => {
+                    console.error('리뷰 목록 로드 실패:', error);
+                    document.getElementById(elementId).innerHTML =
+                        '<div class="error-message">리뷰 목록을 불러오는데 실패했습니다.</div>';
+                });
+        }
+    
+        function getDayFromDate(dateStr) {
+            const today = new Date();
+            const input = new Date(dateStr.replace(/(\d{4})(\d{2})(\d{2})/, '$1-$2-$3'));
+            const diffTime = input.getTime() - today.getTime();
+            const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+            if (diffDays === -1) return 'yesterday';
+            if (diffDays === 0) return 'today';
+            if (diffDays === 1) return 'tomorrow';
+            return null;
+        }
+    
+        function handleDeleteReview(reviewId) {
+            const reviewElement = document.querySelector(`[data-review-id="${reviewId}"]`);
+            if (reviewElement) {
+                const reviewList = reviewElement.parentElement;
+                reviewElement.remove();
+    
+                const remaining = reviewList.querySelectorAll('.review-item');
+                if (remaining.length === 0) {
+                    reviewList.innerHTML = '<p>아직 작성된 리뷰가 없습니다.</p>';
+                }
+            }
+        }
+    
+        let dayOffset = 0;
+        function moveDay(delta) {
+            dayOffset += delta;
+            renderMeals(dayOffset);
+        }
+    
+        function renderMeals(offset) {
+            const days = ['yesterday', 'today', 'tomorrow'];
+            const offsets = [-1, 0, 1];
+            days.forEach((day, index) => {
+                const actualOffset = offsets[index] + offset;
+                const date = getDate(actualOffset);
+                loadMealInfo(date, `${day}Meal`);
+                loadReviews(date, `${day}Reviews`);
+            });
+            updateMealLabels(offset);
+        }
+    
+        function connectWebSocket() {
+            const ws = new WebSocket(WS_URL);
+            ws.onopen = () => console.log('WebSocket connected (guest)');
+            ws.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                if (data.type === 'new_review') {
+                    const review = data.review;
+                    const day = getDayFromDate(review.date);
+                    if (!day) return;
+    
+                    const reviewList = document.getElementById(`${day}Reviews`);
+                    if (reviewList.innerHTML.includes('아직 작성된 리뷰가 없습니다')) {
+                        reviewList.innerHTML = '';
+                    }
+    
+                    const temp = document.createElement('div');
+                    renderReview(review, temp);
+                    const newReviewElement = temp.firstChild;
+                    reviewList.insertBefore(newReviewElement, reviewList.firstChild);
+    
+                } else if (data.type === 'delete_review') {
+                    handleDeleteReview(data.reviewId); // ✅ 삭제 반영
+                }
+            };
+            ws.onclose = () => setTimeout(connectWebSocket, 3000);
+            ws.onerror = (error) => console.error('WebSocket error:', error);
+        }
+    
+        function logout() {
+            localStorage.removeItem('token');
+            window.location.href = '/';
+        }
+    
+        renderMeals(0);
+        connectWebSocket();
+    </script>
+    
+</body>
+</html>

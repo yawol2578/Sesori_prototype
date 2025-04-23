@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>관리자 페이지</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+        .header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background: white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            border-radius: 10px;
+        }
+        h2 {
+            margin-top: 0;
+        }
+        .ban-list, .report-list {
+            margin-top: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        button {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            background-color: #f44336;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #d32f2f;
+        }
+        .back-btn {
+            background-color: #2196F3;
+            margin-top: 20px;
+        }
+        .back-btn:hover {
+            background-color: #1976D2;
+        }
+    </style>
+</head>
+<body>
+
+    <script>
+        function goToMain() {
+            window.location.href = './main.html';
+        }
+    </script>
+
+    <div class="header">
+        <h1>관리자 대시보드</h1>
+    </div>
+    <div class="container">
+        <h2>신고된 IP 목록</h2>
+        <div class="ban-list">
+            <table id="banTable">
+                <thead>
+                    <tr><th>IP</th><th>신고 수</th><th>해제</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>100.100.100.100</td><td>3</td><td><button onclick="unbanIp('100.100.100.100')">해제</button></td></tr>
+                </tbody>
+            </table>
+        </div>
+        <h2>전체 신고 내역</h2>
+        <div class="report-list">
+            <table id="reportTable">
+                <thead>
+                    <tr><th>리뷰 ID</th><th>신고자 ID</th><th>대상 IP</th></tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+        <button class="back-btn" onclick="goToMain()">메인으로 돌아가기</button>
+    </div>
+    <script>
+        const API_URL = 'http://null4u.net:3000';
+        const token = localStorage.getItem('token');
+
+        async function checkAccess() {
+            const res = await fetch(`${API_URL}/profile`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await res.json();
+            if (!data || data.username !== 'null4u') {
+                alert('접근 권한이 없습니다.');
+                window.location.href = '/';
+            }
+        }
+
+        async function loadReports() {
+            const res = await fetch(`${API_URL}/admin/reports`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await res.json();
+            const banBody = document.querySelector('#banTable tbody');
+            const reportBody = document.querySelector('#reportTable tbody');
+
+            banBody.innerHTML = '';
+            reportBody.innerHTML = '';
+
+            const exampleBan = document.createElement('tr');
+            exampleBan.innerHTML = `<td>100.100.100.100</td><td>3</td><td><button onclick="unbanIp('100.100.100.100')">해제</button></td>`;
+            banBody.appendChild(exampleBan);
+
+            data.banList.forEach(row => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td>${row.ip}</td><td>${row.count}</td><td><button onclick="unbanIp('${row.ip}')">해제</button></td>`;
+                banBody.appendChild(tr);
+            });
+
+            data.reports.forEach(r => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td>${r.review_id}</td><td>${r.reporter_id}</td><td>${r.reported_ip}</td>`;
+                reportBody.appendChild(tr);
+            });
+        }
+
+        async function unbanIp(ip) {
+            if (!confirm(`${ip}를 차단 해제할까요?`)) return;
+            await fetch(`${API_URL}/admin/unban`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ ip })
+            });
+            loadReports();
+        }
+
+        checkAccess();
+        loadReports();
+    </script>
+</body>
+</html>

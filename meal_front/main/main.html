@@ -1,0 +1,106 @@
+<!-- main.html -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>급식 리뷰 - 메인</title>
+  <link rel="stylesheet" href="./main.css">
+</head>
+<body>
+  <div class="header">
+    <h1>급식 리뷰 서비스</h1>
+    <p>급식 메뉴를 확인하고 평가하세요!</p>
+  </div>
+
+  <div class="container">
+    <div id="adminSection" style="text-align: center; margin-bottom: 20px; display: none;">
+      <button class="submit-btn" onclick="goToAdminPage()">👑 관리자 페이지</button>
+    </div>
+
+    <div class="arrow left" onclick="moveDay(-1)">&#10094;</div>
+    <div class="arrow right" onclick="moveDay(1)">&#10095;</div>
+
+    <div class="meal-grid">
+      <div class="meal-card" id="yesterdayMeal">
+        <div class="meal-date">어제</div>
+        <div class="meal-content">
+          <!-- 급식 정보가 여기에 표시됩니다 -->
+        </div>
+        <button class="review-button" onclick="toggleReviewForm('yesterday')" disabled>리뷰 작성</button>
+        <div class="review-form" id="yesterdayReviewForm">
+          <h3>리뷰 작성</h3>
+          <select id="yesterdayRating">
+            <option value="">평점 선택</option>
+            <option value="1">★</option>
+            <option value="2">★★</option>
+            <option value="3">★★★</option>
+            <option value="4">★★★★</option>
+            <option value="5">★★★★★</option>
+          </select>
+          <textarea id="yesterdayComment" placeholder="리뷰를 작성해주세요 (최대 300자)"></textarea>
+          <div class="button-group">
+            <button class="submit-btn" onclick="submitReview('yesterday')">작성</button>
+            <button class="cancel-btn" onclick="closeReviewForm('yesterday')">취소</button>
+          </div>
+        </div>
+        <div class="reviews" id="yesterdayReviews"></div>
+      </div>
+
+      <div class="meal-card" id="todayMeal">
+        <div class="meal-date">오늘</div>
+        <div class="meal-content">
+          <!-- 급식 정보가 여기에 표시됩니다 -->
+        </div>
+        <button class="review-button" onclick="toggleReviewForm('today')" disabled>리뷰 작성</button>
+        <div class="review-form" id="todayReviewForm">
+          <h3>리뷰 작성</h3>
+          <select id="todayRating">
+            <option value="">평점 선택</option>
+            <option value="1">★</option>
+            <option value="2">★★</option>
+            <option value="3">★★★</option>
+            <option value="4">★★★★</option>
+            <option value="5">★★★★★</option>
+          </select>
+          <textarea id="todayComment" placeholder="리뷰를 작성해주세요 (최대 300자)"></textarea>
+          <div class="button-group">
+            <button class="submit-btn" onclick="submitReview('today')">작성</button>
+            <button class="cancel-btn" onclick="closeReviewForm('today')">취소</button>
+          </div>
+        </div>
+        <div class="reviews" id="todayReviews"></div>
+      </div>
+
+      <div class="meal-card" id="tomorrowMeal">
+        <div class="meal-date">내일</div>
+        <div class="meal-content">
+          <!-- 급식 정보가 여기에 표시됩니다 -->
+        </div>
+        <button class="review-button" onclick="toggleReviewForm('tomorrow')" disabled>리뷰 작성</button>
+        <div class="review-form" id="tomorrowReviewForm">
+          <h3>리뷰 작성</h3>
+          <select id="tomorrowRating">
+            <option value="">평점 선택</option>
+            <option value="1">★</option>
+            <option value="2">★★</option>
+            <option value="3">★★★</option>
+            <option value="4">★★★★</option>
+            <option value="5">★★★★★</option>
+          </select>
+          <textarea id="tomorrowComment" placeholder="리뷰를 작성해주세요 (최대 300자)"></textarea>
+          <div class="button-group">
+            <button class="submit-btn" onclick="submitReview('tomorrow')">작성</button>
+            <button class="cancel-btn" onclick="closeReviewForm('tomorrow')">취소</button>
+          </div>
+        </div>
+        <div class="reviews" id="tomorrowReviews"></div>
+      </div>
+    </div>
+
+    <button class="logout-btn" onclick="logout()">로그아웃</button>
+  </div>
+
+  <script src="./main.js"></script>
+</body>
+</html>

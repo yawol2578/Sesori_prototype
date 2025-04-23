@@ -1,0 +1,296 @@
+/* main.css */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f5f5f5;
+  }
+  .header {
+    background-color: #4CAF50;
+    color: white;
+    padding: 20px 0;
+    text-align: center;
+  }
+  .container {
+    position: relative;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  .meal-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 20px;
+    margin: 20px 0;
+  }
+  .meal-card {
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    height: 500px;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .meal-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  }
+  .meal-date {
+    font-size: 1.2em;
+    font-weight: bold;
+    margin-bottom: 15px;
+    color: #333;
+    text-align: center;
+    flex: 0 0 45px;
+  }
+  .meal-content {
+    padding: 15px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    flex: 0 0 200px;
+    overflow-y: auto;
+  }
+  .menu-content {
+    white-space: pre-line;
+    line-height: 1.6;
+    font-size: 0.95em;
+  }
+  .error-message {
+    color: #d32f2f;
+    text-align: center;
+    padding: 10px;
+    background-color: #ffebee;
+    border-radius: 4px;
+    position: relative;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+  .review-button {
+    width: 100%;
+    flex: 0 0 44px;
+    padding: 0;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s;
+    margin-bottom: 15px;
+  }
+  .review-button:hover:not(:disabled) {
+    background-color: #45a049;
+  }
+  .review-button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+    opacity: 0.7;
+  }
+  .review-form {
+    display: none;
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+  }
+  .review-form.active {
+    display: block;
+  }
+  .review-form h3 {
+    margin: 0 0 15px 0;
+    text-align: center;
+    color: #333;
+  }
+  .review-form select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    height: 40px;
+  }
+  .review-form textarea {
+    width: 100%;
+    height: 120px;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    resize: vertical;
+  }
+  .review-form .button-group {
+    display: flex;
+    gap: 10px;
+  }
+  .review-form .submit-btn,
+  .review-form .cancel-btn {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s;
+  }
+  .review-form .submit-btn {
+    background-color: #4CAF50;
+    color: white;
+  }
+  .review-form .submit-btn:hover {
+    background-color: #45a049;
+  }
+  .review-form .cancel-btn {
+    background-color: #f44336;
+    color: white;
+  }
+  .review-form .cancel-btn:hover {
+    background-color: #da190b;
+  }
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+  }
+  .modal-overlay.active {
+    display: block;
+  }
+  .reviews {
+    flex: 1;
+    overflow-y: auto;
+    margin-top: 0;
+    padding: 10px 0;
+  }
+  .review-list {
+    max-height: 200px;
+    overflow-y: auto;
+    margin-bottom: 10px;
+  }
+  .review-item {
+    border-bottom: 1px solid #eee;
+    padding: 12px 0;
+    font-size: 0.9em;
+  }
+  .review-item:last-child {
+    border-bottom: none;
+  }
+  .rating {
+    color: #FFD700;
+    font-size: 1em;
+    margin: 5px 0;
+  }
+  .user-info {
+    color: #666;
+    font-size: 0.8em;
+    margin-bottom: 5px;
+  }
+  .button-group {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+  }
+  .delete-btn {
+    padding: 6px 12px;
+    background-color: #e0e0e0;
+    color: #333;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+  }
+  .delete-btn:hover {
+    background-color: #d32f2f;
+    color: white;
+  }
+  .logout-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 10px 20px;
+    background-color: #f44336;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    z-index: 100;
+  }
+  .logout-btn:hover {
+    background-color: #d32f2f;
+  }
+  .arrow {
+    position: fixed;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 24px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    z-index: 100;
+    transition: all 0.3s ease;
+  }
+  .arrow:hover {
+    background: white;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  }
+  .arrow.left {
+    left: 20px;
+  }
+  .arrow.right {
+    right: 20px;
+  }
+  @media (max-width: 768px) {
+    .container {
+      padding: 10px;
+    }
+    .meal-card {
+      padding: 15px;
+    }
+    .arrow {
+      width: 36px;
+      height: 36px;
+      font-size: 20px;
+    }
+    .arrow.left {
+      left: 10px;
+    }
+    .arrow.right {
+      right: 10px;
+    }
+    .logout-btn {
+      bottom: 10px;
+      right: 10px;
+      padding: 8px 16px;
+      font-size: 14px;
+    }
+  }
+  @media (max-width: 480px) {
+    .meal-grid {
+      grid-template-columns: 1fr;
+    }
+    .arrow {
+      width: 32px;
+      height: 32px;
+      font-size: 18px;
+    }
+    .arrow.left {
+      left: 5px;
+    }
+    .arrow.right {
+      right: 5px;
+    }
+  }
+  

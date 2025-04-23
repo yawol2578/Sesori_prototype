@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>급식 리뷰 - 게스트</title>
+  <link rel="stylesheet" href="guest.css">
+</head>
+<body>
+  <div class="header">
+    <h1>급식 리뷰 서비스</h1>
+    <p>리뷰를 남기고 싶다면 로그인하세요!</p>
+  </div>
+  <div class="container">
+    <div class="meal-wrapper">
+      <div class="arrow left" onclick="moveDay(-1)">&#10094;</div>
+      <div class="arrow right" onclick="moveDay(1)">&#10095;</div>
+      <div class="meal-grid">
+        <div class="meal-card">
+          <div class="meal-date">어제</div>
+          <div id="yesterdayMeal" class="menu-content">로딩 중...</div>
+          <div class="review-section">
+            <div id="yesterdayReviews" class="review-list">로딩 중...</div>
+          </div>
+        </div>
+        <div class="meal-card">
+          <div class="meal-date">오늘</div>
+          <div id="todayMeal" class="menu-content">로딩 중...</div>
+          <div class="review-section">
+            <div id="todayReviews" class="review-list">로딩 중...</div>
+          </div>
+        </div>
+        <div class="meal-card">
+          <div class="meal-date">내일</div>
+          <div id="tomorrowMeal" class="menu-content">로딩 중...</div>
+          <div class="review-section">
+            <div id="tomorrowReviews" class="review-list">로딩 중...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <button class="login-btn" onclick="logout()">로그인 하러 가기</button>
+  <script src="guest.js"></script>
+</body>
+</html>

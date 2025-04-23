@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>급식 리뷰 서비스</title>
+  <link rel="stylesheet" href="/index/index.css">
+</head>
+<body>
+  <div class="header">
+    <h1>급식 리뷰 서비스</h1>
+    <p>오늘의 급식을 평가하고 공유하세요!</p>
+  </div>
+
+  <div class="container">
+    <div id="authStatus">
+      <h2>환영합니다!</h2>
+      <p>급식 리뷰 서비스에 오신 것을 환영합니다. 이 서비스에서는:</p>
+      <ul>
+        <li>매일 제공되는 급식 메뉴를 확인할 수 있습니다.</li>
+        <li>급식에 대한 평가와 의견을 남길 수 있습니다.</li>
+        <li>다른 학생들의 리뷰를 확인할 수 있습니다.</li>
+      </ul>
+    </div>
+
+    <div id="loginForm" class="auth-section">
+      <h3>로그인</h3>
+      <input type="text" id="loginUsername" placeholder="아이디" />
+      <input type="password" id="loginPassword" placeholder="비밀번호" />
+    </div>
+
+    <div id="registerForm" class="auth-section">
+      <h3>회원가입</h3>
+      <input type="text" id="registerUsername" placeholder="아이디" />
+      <input type="password" id="registerPassword" placeholder="비밀번호" />
+      <input type="email" id="registerEmail" placeholder="이메일" />
+      <div class="email-verification">
+        <input type="text" id="verificationCode" placeholder="인증 코드" />
+        <button onclick="sendVerificationCode()">인증 코드 발송</button>
+      </div>
+    </div>
+
+    <div class="btn-group-inline">
+      <button class="login-btn" onclick="handleLoginButton()">로그인</button>
+      <button class="register-btn" onclick="handleRegisterButton()">회원가입</button>
+      <button class="guest-btn" onclick="goGuestMode()">게스트</button>
+    </div>
+
+    <div class="feature-box">
+      <div class="feature">
+        <h4>📋 실시간 급식 정보</h4>
+        <p>매일 업데이트되는 급식 메뉴를 확인하세요.</p>
+      </div>
+      <div class="feature">
+        <h4>⭐ 평가 시스템</h4>
+        <p>급식에 대한 평가와 의견을 남겨보세요.</p>
+      </div>
+      <div class="feature">
+        <h4>💬 커뮤니티</h4>
+        <p>다른 학생들의 리뷰를 확인하고 소통하세요.</p>
+      </div>
+    </div>
+  </div>
+
+  <script src="/index/index.js"></script>
+</body>
+</html>
