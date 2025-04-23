@@ -29,7 +29,7 @@ function showLoginForm() {
   }
   
   function login() {
-    const username = document.getElementById('loginUsername').value;d
+    const username = document.getElementById('loginUsername').value;
     const password = document.getElementById('loginPassword').value;
   
     fetch('http://localhost:3000/login', {
@@ -50,8 +50,8 @@ function showLoginForm() {
   }
   
   function validateEmail(email) {
-    const domain = email.split('@')[1];
-    if (domain !== 'sen.go.kr') {
+    const emailLower = email.toLowerCase();
+    if (!emailLower.endsWith('sen.go.kr')) {
       alert('sen.go.kr 도메인의 이메일만 사용 가능합니다.');
       return false;
     }

@@ -10,8 +10,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
 // 이메일 도메인 검증
 function validateEmailDomain(email) {
-    const domain = email.split('@')[1];
-    return domain === 'sen.go.kr';
+    return email.toLowerCase().endsWith('sen.go.kr');
 }
 
 // 이메일 인증 코드 발송
